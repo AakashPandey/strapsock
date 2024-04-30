@@ -36,18 +36,18 @@ module.exports = {
       
        socket.on('message', async (data) => {
           if (!data || Object.keys(data).length === 0 ) {
-            socket.emit('error', { message: 'Message cannot be empty' });
-            return; // Stop further execution
+            socket.emit('serverMessage', { error: true, message: 'Message cannot be empty' });
+            return;
           }
           if (!data.body || data.body.trim() === '') {
-            socket.emit('error', { message: 'Message body cannot be empty' });
+            socket.emit('serverMessage', { error: true, message: 'Message body cannot be empty' });
             return; 
           }
           try {
             await strapi.service('api::message.message').createMessage(data);
             io.emit("serverMessage", data);
           } catch (error) {
-            socket.emit('error', { message: 'Failed to create message', error: error.message });
+            socket.emit('serverMessage', { error: true, message: 'Failed to create message' });
             console.error('Error creating message:', error);
           }
        });
@@ -58,7 +58,6 @@ module.exports = {
             });
         });
       
-        //Make the socket global
         strapi.io = io
       }
   };
